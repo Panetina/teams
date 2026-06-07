@@ -2,8 +2,8 @@
 	"schemaVersion": 1,
 	"id": "teams",
 	"version": "${version}",
-	"name": "Teams",
-	"description": "Custom team system for Elarion",
+	"name": "§bTeams",
+	"description": "§7━━━━━━━━━━━━━━━━━━━━━\n§7Custom team system for Elarion\n§7Create teams, chat privately, set borders, and more!\n§7━━━━━━━━━━━━━━━━━━━━━",
 	"authors": ["Panyel"],
 	"contact": {
 		"homepage": "https://modrinth.com/user/Panyel",
@@ -30,5 +30,16 @@
 		"minecraft": "~1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/ADD_LATER",
+				"modmenu.github": "https://github.com/Panetina/teams"
+			}
+		}
 	}
 }
