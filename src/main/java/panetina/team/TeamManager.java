@@ -1,6 +1,5 @@
 package panetina.team;
 
-import net.minecraft.entity.data.TrackedData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -13,14 +12,14 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import panetina.Teams;
 import panetina.border.TeamBorderManager;
-import panetina.mixin.EntityAccessor;
 import panetina.util.TeamColorUtil;
 import panetina.util.TeamLogger;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public class TeamManager {
+
+    // No overhead name code – only your core team logic
 
     public static void addPlayer(ServerPlayerEntity player, String teamId) {
         if (player == null) return;
@@ -30,18 +29,13 @@ public class TeamManager {
         storage.addPlayerToTeam(uuid, teamId);
         TeamData team = storage.getTeamById(teamId);
         if (team != null) {
+            // Teleport to team spawn
             TeamData.SpawnLocation spawn = team.getSpawn();
             player.teleport(player.getServerWorld(), spawn.x, spawn.y, spawn.z, player.getYaw(), player.getPitch());
             player.sendMessage(Text.literal("You joined ").append(Text.literal(team.getName()).formatted(Formatting.GREEN)), false);
 
-            String displayName = player.getDisplayName() != null ? player.getDisplayName().getString() : player.getName().getString();
-            Text colouredName = Text.literal(displayName)
-                    .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
-
-            // Direct data tracker update – automatically syncs to all clients
-            TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
-            player.getDataTracker().set(key, Optional.of(colouredName));
-            player.setCustomNameVisible(true);
+            // Run join commands (including team join red)
+            runJoinCommands(player, team);
         }
         TeamBorderManager.syncBorderToPlayer(player);
         refreshTabList(player);
@@ -59,14 +53,17 @@ public class TeamManager {
         storage.removePlayerFromTeam(uuid);
         player.sendMessage(Text.literal("You have been removed from your team.").formatted(Formatting.RED), false);
 
-        TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
-        player.getDataTracker().set(key, Optional.empty());
-        player.setCustomNameVisible(false);
+        // Remove player from any vanilla scoreboard team
+        MinecraftServer server = player.getServer();
+        if (server != null) {
+            // Run team leave command as the player (with op permissions)
+            String command = "team leave " + player.getName().getString();
+            server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(4), command);
+        }
 
         TeamBorderManager.syncBorderToPlayer(player);
         refreshTabList(player);
 
-        MinecraftServer server = player.getServer();
         if (server != null) {
             Teams.sendTeamDataToAllOnline(server);
         }
@@ -165,6 +162,20 @@ public class TeamManager {
             if (other != null && other.networkHandler != null) {
                 other.networkHandler.sendPacket(packet);
             }
+        }
+    }
+
+    private static void runJoinCommands(ServerPlayerEntity player, TeamData team) {
+        if (player == null || player.getServer() == null) return;
+
+        MinecraftServer server = player.getServer();
+
+        for (String command : team.getCommands()) {
+            // Replace both @s and {player} with the actual player name
+            String processedCommand = command
+                    .replace("@s", player.getName().getString())
+                    .replace("{player}", player.getName().getString());
+            server.getCommandManager().executeWithPrefix(server.getCommandSource(), processedCommand);
         }
     }
 }

@@ -17,12 +17,22 @@ public class ServerPlayerEntityMixin {
     private void colorPlayerListName(CallbackInfoReturnable<Text> cir) {
         ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
         TeamData team = TeamStorage.getInstance().getTeamOfPlayer(self.getUuid());
-        if (team != null) {
-            Text original = cir.getReturnValue();
-            String name = original != null ? original.getString() : self.getName().getString();
-            Text colored = Text.literal(name)
-                    .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
-            cir.setReturnValue(colored);
+
+        if (team == null) return;
+
+        // Get the current display name (could be from nickname mod)
+        Text currentName = cir.getReturnValue();
+        if (currentName == null) {
+            currentName = self.getName();
         }
+
+        // Extract just the string content, ignoring any existing color
+        String nameString = currentName.getString();
+
+        // Apply team color to the plain string
+        Text coloredName = Text.literal(nameString)
+                .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
+
+        cir.setReturnValue(coloredName);
     }
 }

@@ -22,7 +22,8 @@ public class ChatMessageMixin {
     @Unique
     private static final Logger LOGGER = LoggerFactory.getLogger("TeamsMod");
 
-    @Shadow public ServerPlayerEntity player;
+    @Shadow
+    public ServerPlayerEntity player;
 
     @Inject(method = "handleDecoratedMessage", at = @At("HEAD"), cancellable = true)
     private void colorChatMessage(SignedMessage signedMessage, CallbackInfo ci) {
@@ -32,32 +33,34 @@ public class ChatMessageMixin {
 
         TeamData team = TeamStorage.getInstance().getTeamOfPlayer(this.player.getUuid());
 
-        // Log normal chat to console for all players (admins can see everything)
+        // Log to console
         String playerName = this.player.getName().getString();
         String message = signedMessage.getContent().getString();
         LOGGER.info("<{}> {}", playerName, message);
 
         if (team != null) {
-            String displayName = this.player.getDisplayName() != null
-                    ? this.player.getDisplayName().getString()
-                    : this.player.getName().getString();
-
-            Text coloredName = Text.literal(displayName)
-                    .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
+            // Use the custom name if set (from TeamManager), otherwise fallback to colored display name
+            Text coloredName = this.player.getCustomName();
+            if (coloredName == null) {
+                String displayName = this.player.getDisplayName() != null
+                        ? this.player.getDisplayName().getString()
+                        : this.player.getName().getString();
+                coloredName = Text.literal(displayName)
+                        .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
+            }
 
             Text newMessage = Text.literal("<")
                     .append(coloredName)
                     .append(Text.literal("> "))
                     .append(signedMessage.getContent());
 
-            // Send colored message to ALL players (global chat with colored name)
+            // Send to all players
             for (ServerPlayerEntity online : this.player.getServer().getPlayerManager().getPlayerList()) {
                 if (online != null) {
                     online.sendMessage(newMessage, false);
                 }
             }
-            ci.cancel(); // Cancel vanilla broadcast to use our colored version
+            ci.cancel();
         }
-        // If not in team, let vanilla handle it (don't cancel)
     }
 }

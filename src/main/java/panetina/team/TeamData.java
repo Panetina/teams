@@ -13,11 +13,11 @@ public class TeamData {
     private int borderRadius;
     private boolean merged = false;
     private List<UUID> members = new ArrayList<>();
+    private List<String> commands = new ArrayList<>(); // NEW: commands to run when player joins
 
     public static class SpawnLocation {
         public double x, y, z;
 
-        // Only keep the parameterized constructor
         public SpawnLocation(double x, double y, double z) {
             this.x = x;
             this.y = y;
@@ -27,13 +27,14 @@ public class TeamData {
 
     public TeamData() {}
 
-    public TeamData(String id, String name, String prefix, String color, SpawnLocation spawn, int borderRadius) {
+    public TeamData(String id, String name, String prefix, String color, SpawnLocation spawn, int borderRadius, List<String> commands) {
         this.id = id;
         this.name = name;
         this.prefix = prefix;
         this.color = color;
         this.spawn = spawn;
         this.borderRadius = borderRadius;
+        this.commands = commands;
     }
 
     // Getters
@@ -44,6 +45,7 @@ public class TeamData {
     public SpawnLocation getSpawn() { return spawn; }
     public int getBorderRadius() { return borderRadius; }
     public List<UUID> getMembers() { return members; }
+    public List<String> getCommands() { return commands; }
 
     // Setters
     public void setId(String id) { this.id = id; }
@@ -53,6 +55,7 @@ public class TeamData {
     public void setSpawn(SpawnLocation spawn) { this.spawn = spawn; }
     public void setBorderRadius(int borderRadius) { this.borderRadius = borderRadius; }
     public void setMembers(List<UUID> members) { this.members = members; }
+    public void setCommands(List<String> commands) { this.commands = commands; }
 
     public boolean isMerged() { return merged; }
     public void setMerged(boolean merged) { this.merged = merged; }

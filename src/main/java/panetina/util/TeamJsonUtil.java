@@ -55,37 +55,57 @@ public class TeamJsonUtil {
         TeamStorage.TeamsConfig config = new TeamStorage.TeamsConfig();
         List<TeamData> teams = new ArrayList<>();
 
-        TeamData team1 = new TeamData();
-        team1.setId("team1");
-        team1.setName("Kingdom of Oak");
-        team1.setPrefix("[OAK]");
-        team1.setColor("#55AA55");
-        team1.setSpawn(new TeamData.SpawnLocation(0, 64, 0));
-        team1.setBorderRadius(64);
-        team1.setMembers(new ArrayList<>());
+        teams.add(createTeam1());
+        teams.add(createTeam2());
+        teams.add(createTeam3());
 
-        TeamData team2 = new TeamData();
-        team2.setId("team2");
-        team2.setName("Iron Empire");
-        team2.setPrefix("[IRON]");
-        team2.setColor("#AAAAAA");
-        team2.setSpawn(new TeamData.SpawnLocation(1000, 64, 0));
-        team2.setBorderRadius(64);
-        team2.setMembers(new ArrayList<>());
-
-        TeamData team3 = new TeamData();
-        team3.setId("team3");
-        team3.setName("Blue Dominion");
-        team3.setPrefix("[BLUE]");
-        team3.setColor("#5555FF");
-        team3.setSpawn(new TeamData.SpawnLocation(0, 64, 1000));
-        team3.setBorderRadius(64);
-        team3.setMembers(new ArrayList<>());
-
-        teams.add(team1);
-        teams.add(team2);
-        teams.add(team3);
         config.teams = teams;
         return config;
+    }
+
+    private static TeamData createTeam1() {
+        TeamData team = new TeamData();
+        team.setId("team1");
+        team.setName("Kingdom of Oak");
+        team.setPrefix("[OAK]");
+        team.setColor("green");
+        team.setSpawn(new TeamData.SpawnLocation(0, 64, 0));
+        team.setBorderRadius(64);
+        team.setMembers(new ArrayList<>());
+        team.setCommands(new ArrayList<>());
+        return team;
+    }
+
+    private static TeamData createTeam2() {
+        TeamData team = new TeamData();
+        team.setId("team2");
+        team.setName("Iron Empire");
+        team.setPrefix("[IRON]");
+        team.setColor("gray");
+        team.setSpawn(new TeamData.SpawnLocation(1000, 64, 0));
+        team.setBorderRadius(64);
+        team.setMembers(new ArrayList<>());
+        team.setCommands(new ArrayList<>());
+        return team;
+    }
+
+    private static TeamData createTeam3() {
+        TeamData team = new TeamData();
+        team.setId("team3");
+        team.setName("Blue Dominion");
+        team.setPrefix("[BLUE]");
+        team.setColor("blue");
+        team.setSpawn(new TeamData.SpawnLocation(0, 64, 1000));
+        team.setBorderRadius(64);
+        team.setMembers(new ArrayList<>());
+
+        List<String> commands = new ArrayList<>();
+        commands.add("effect give @s minecraft:water_breathing 60 1");
+        commands.add("give @s minecraft:blue_wool 1");
+        commands.add("playsound minecraft:entity.player.levelup ambient @s ~ ~ ~");
+        commands.add("team join blue {player}");
+        team.setCommands(commands);
+
+        return team;
     }
 }

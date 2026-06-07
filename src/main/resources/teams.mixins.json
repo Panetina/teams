@@ -4,17 +4,13 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ServerPlayerEntityMixin",
-		"PlayerManagerMixin",
 		"ChatMessageMixin",
-		"EntityAccessor"
+		"TeamMsgMixin"
 	],
 	"client": [
 		"PlayerListHudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
 	}
 }
