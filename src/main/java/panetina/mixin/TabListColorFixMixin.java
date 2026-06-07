@@ -2,8 +2,6 @@ package panetina.mixin;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,28 +10,26 @@ import panetina.team.TeamData;
 import panetina.team.TeamStorage;
 import panetina.util.TeamColorUtil;
 
-@Mixin(value = ServerPlayerEntity.class, priority = 2000) // Higher priority runs LATER
-public class ServerPlayerEntityMixin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger("TeamsMod");
+@Mixin(value = ServerPlayerEntity.class, priority = 5000) // Very high priority = runs last
+public class TabListColorFixMixin {
 
     @Inject(method = "getPlayerListName", at = @At("RETURN"), cancellable = true)
-    private void colorPlayerListName(CallbackInfoReturnable<Text> cir) {
+    private void forceTeamColor(CallbackInfoReturnable<Text> cir) {
         ServerPlayerEntity self = (ServerPlayerEntity) (Object) this;
         TeamData team = TeamStorage.getInstance().getTeamOfPlayer(self.getUuid());
 
         if (team == null) return;
 
-        Text currentName = cir.getReturnValue();
-        if (currentName == null) {
-            currentName = self.getName();
-        }
+        Text current = cir.getReturnValue();
+        if (current == null) return;
 
-        String nameString = currentName.getString();
+        // Get plain text (remove any existing formatting)
+        String plainName = current.getString();
 
-        Text coloredName = Text.literal(nameString)
+        // Force apply team color
+        Text colored = Text.literal(plainName)
                 .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
 
-        cir.setReturnValue(coloredName);
+        cir.setReturnValue(colored);
     }
 }

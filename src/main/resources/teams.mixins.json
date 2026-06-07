@@ -3,9 +3,9 @@
 	"package": "panetina.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ServerPlayerEntityMixin",
 		"ChatMessageMixin",
-		"TeamMsgMixin"
+		"TeamMsgMixin",
+		"TabListColorFixMixin"
 	],
 	"client": [
 		"PlayerListHudMixin"

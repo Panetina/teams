@@ -53,7 +53,7 @@ public class PlayerListHudMixin {
 
             // Use team color for header, fallback to gold if invalid
             TextColor color = TeamColorUtil.parseColor(teamColor);
-            Text headerText = Text.literal(" " + teamName + " ")
+            Text headerText = Text.literal("▼" + teamName + "▼")
                     .styled(style -> style.withBold(true).withColor(color));
 
             UUID headerUUID = UUID.nameUUIDFromBytes(("teamheader_" + teamId).getBytes(StandardCharsets.UTF_8));

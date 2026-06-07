@@ -3,8 +3,8 @@
 	"id": "teams",
 	"version": "${version}",
 	"name": "teams",
-	"description": "Team system mod",
-	"authors": ["Me!"],
+	"description": "Custom team system for Elarion",
+	"authors": ["Panyel"],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
