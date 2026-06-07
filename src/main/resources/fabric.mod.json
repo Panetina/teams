@@ -7,7 +7,9 @@
 	"authors": ["Panyel"],
 	"contact": {
 		"homepage": "https://modrinth.com/user/Panyel",
-		"sources": "https://github.com/Panetina/teams"
+		"sources": "https://github.com/Panetina/teams",
+		"issues": "https://github.com/Panetina/teams/issues",
+		"discord": "https://discord.gg/ADD_LATER"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/teams/icon.png",
