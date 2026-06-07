@@ -20,6 +20,11 @@ public class ChatMessageMixin {
 
     @Inject(method = "handleDecoratedMessage", at = @At("HEAD"), cancellable = true)
     private void colorChatMessage(SignedMessage signedMessage, CallbackInfo ci) {
+        // Null checks to prevent NPE
+        if (this.player == null || this.player.getServer() == null || this.player.getServer().getPlayerManager() == null) {
+            return;
+        }
+
         TeamData team = TeamStorage.getInstance().getTeamOfPlayer(this.player.getUuid());
         if (team != null) {
             String displayName = this.player.getDisplayName() != null
@@ -36,7 +41,9 @@ public class ChatMessageMixin {
 
             // Send colored message to all players
             for (ServerPlayerEntity online : this.player.getServer().getPlayerManager().getPlayerList()) {
-                online.sendMessage(newMessage, false);
+                if (online != null) {
+                    online.sendMessage(newMessage, false);
+                }
             }
             ci.cancel(); // cancel vanilla broadcast to avoid duplicate
         }

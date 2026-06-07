@@ -25,8 +25,6 @@ import java.util.UUID;
 
 public class TeamManager {
 
-    // No registerAllTeams needed – we don't use scoreboard teams
-
     public static void addPlayer(ServerPlayerEntity player, String teamId) {
         if (player == null) return;
         UUID uuid = player.getUuid();
@@ -39,14 +37,13 @@ public class TeamManager {
             player.teleport(player.getServerWorld(), spawn.x, spawn.y, spawn.z, player.getYaw(), player.getPitch());
             player.sendMessage(Text.literal("You joined ").append(Text.literal(team.getName()).formatted(Formatting.GREEN)), false);
 
-            // Set colored custom name – this appears above the player's head
+            // Set custom name with hex color support
             String displayName = player.getDisplayName() != null ? player.getDisplayName().getString() : player.getName().getString();
             Text colouredName = Text.literal(displayName)
                     .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
             player.setCustomName(colouredName);
             player.setCustomNameVisible(true);
 
-            // Force sync so all players see the colored name immediately
             forceCustomNameSync(player);
         }
         TeamBorderManager.syncBorderToPlayer(player);
@@ -79,6 +76,8 @@ public class TeamManager {
     }
 
     public static void sendTeamMessage(ServerPlayerEntity sender, String message) {
+        if (sender == null || sender.getServer() == null) return;
+
         TeamStorage storage = TeamStorage.getInstance();
         TeamData team = storage.getTeamOfPlayer(sender.getUuid());
         if (team == null) {
@@ -91,15 +90,20 @@ public class TeamManager {
         Text fullMessage = prefix.copy().append(Text.literal(" " + displayName + ": ").formatted(Formatting.WHITE))
                 .append(Text.literal(message).formatted(Formatting.GRAY));
 
-        for (ServerPlayerEntity player : sender.getServer().getPlayerManager().getPlayerList()) {
-            if (team.equals(storage.getTeamOfPlayer(player.getUuid()))) {
-                player.sendMessage(fullMessage, false);
+        MinecraftServer server = sender.getServer();
+        if (server != null && server.getPlayerManager() != null) {
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                if (team.equals(storage.getTeamOfPlayer(player.getUuid()))) {
+                    player.sendMessage(fullMessage, false);
+                }
             }
         }
         TeamLogger.logTeamChat(team.getPrefix(), displayName, message);
     }
 
     public static void giveToTeam(String teamId, ItemStack stack, MinecraftServer server) {
+        if (server == null || server.getPlayerManager() == null) return;
+
         TeamStorage storage = TeamStorage.getInstance();
         TeamData team = storage.getTeamById(teamId);
         if (team == null) return;
@@ -126,6 +130,8 @@ public class TeamManager {
     }
 
     public static void deliverPendingRewards(ServerPlayerEntity player, MinecraftServer server) {
+        if (player == null || server == null || server.getPlayerManager() == null) return;
+
         TeamStorage storage = TeamStorage.getInstance();
         TeamMember member = storage.getOrCreateMember(player.getUuid());
         RegistryWrapper.WrapperLookup registryLookup = server.getRegistryManager();
@@ -149,8 +155,10 @@ public class TeamManager {
     }
 
     private static void forceCustomNameSync(ServerPlayerEntity player) {
+        if (player == null || player.getServer() == null) return;
+
         MinecraftServer server = player.getServer();
-        if (server == null) return;
+        if (server.getPlayerManager() == null) return;
 
         TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
         Optional<Text> value = player.getDataTracker().get(key);
@@ -161,19 +169,26 @@ public class TeamManager {
         );
 
         for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
-            other.networkHandler.sendPacket(packet);
+            if (other != null && other.networkHandler != null) {
+                other.networkHandler.sendPacket(packet);
+            }
         }
     }
 
     private static void refreshTabList(ServerPlayerEntity changedPlayer) {
+        if (changedPlayer == null || changedPlayer.getServer() == null) return;
+
         MinecraftServer server = changedPlayer.getServer();
-        if (server == null) return;
+        if (server.getPlayerManager() == null) return;
+
         PlayerListS2CPacket packet = new PlayerListS2CPacket(
                 PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME,
                 changedPlayer
         );
         for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
-            other.networkHandler.sendPacket(packet);
+            if (other != null && other.networkHandler != null) {
+                other.networkHandler.sendPacket(packet);
+            }
         }
     }
 }

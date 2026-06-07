@@ -17,18 +17,18 @@ public record TeamDataPayload(Map<UUID, String> teamAssignments,
             (value, buf) -> {
                 buf.writeMap(value.teamAssignments,
                         (b, uuid) -> b.writeUuid(uuid),
-                        (b, str) -> b.writeString(str));
+                        PacketByteBuf::writeString);
                 buf.writeMap(value.teamNames,
-                        (b, k) -> b.writeString(k),
-                        (b, v) -> b.writeString(v));
+                        PacketByteBuf::writeString,
+                        PacketByteBuf::writeString);
                 buf.writeMap(value.teamColors,
-                        (b, k) -> b.writeString(k),
-                        (b, v) -> b.writeString(v));
+                        PacketByteBuf::writeString,
+                        PacketByteBuf::writeString);
             },
             buf -> new TeamDataPayload(
-                    buf.readMap(b -> b.readUuid(), b -> b.readString()),
-                    buf.readMap(b -> b.readString(), b -> b.readString()),
-                    buf.readMap(b -> b.readString(), b -> b.readString())
+                    buf.readMap(b -> b.readUuid(), PacketByteBuf::readString),
+                    buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString),
+                    buf.readMap(PacketByteBuf::readString, PacketByteBuf::readString)
             )
     );
 

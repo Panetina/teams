@@ -11,7 +11,7 @@ public class TeamBorderManager {
     /**
      * Sends a per-player world border packet.
      * If the player's team is merged, sends the current global border instead.
-     * Otherwise sends the team's specific border centered at spawn.
+     * Otherwise, sends the team's specific border centered at spawn.
      */
     public static void syncBorderToPlayer(ServerPlayerEntity player) {
         TeamData team = TeamStorage.getInstance().getTeamOfPlayer(player.getUuid());
@@ -35,18 +35,5 @@ public class TeamBorderManager {
         border.setWarningTime(15);
 
         player.networkHandler.sendPacket(new WorldBorderInitializeS2CPacket(border));
-    }
-
-    /**
-     * Called when the global border changes (e.g., /worldborder set 10000).
-     * Refreshes the border for all merged teams and unassigned players.
-     */
-    public static void syncGlobalBorderToAll(Iterable<ServerPlayerEntity> players) {
-        for (ServerPlayerEntity player : players) {
-            TeamData team = TeamStorage.getInstance().getTeamOfPlayer(player.getUuid());
-            if (team == null || team.isMerged()) {
-                syncBorderToPlayer(player);
-            }
-        }
     }
 }

@@ -18,12 +18,4 @@ public class TeamColorUtil {
         }
         return TextColor.fromFormatting(Formatting.WHITE);
     }
-
-    public static Formatting parseFormatting(String colorStr) {
-        if (colorStr == null) return null;
-        if (colorStr.startsWith("#")) {
-            return null; // Scoreboard teams only support named colors
-        }
-        return Formatting.byName(colorStr.toLowerCase(Locale.ROOT));
-    }
 }

@@ -6,7 +6,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 import panetina.team.TeamData;
 import panetina.team.TeamStorage;
 

@@ -11,14 +11,17 @@ public class TeamData {
     private String color;
     private SpawnLocation spawn;
     private int borderRadius;
-    private boolean merged = false;   // NEW: when true, team border is disabled
+    private boolean merged = false;
     private List<UUID> members = new ArrayList<>();
 
     public static class SpawnLocation {
         public double x, y, z;
-        public SpawnLocation() {}
+
+        // Only keep the parameterized constructor
         public SpawnLocation(double x, double y, double z) {
-            this.x = x; this.y = y; this.z = z;
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     }
 
@@ -33,7 +36,7 @@ public class TeamData {
         this.borderRadius = borderRadius;
     }
 
-    // Getters (existing)
+    // Getters
     public String getId() { return id; }
     public String getName() { return name; }
     public String getPrefix() { return prefix; }
@@ -42,7 +45,7 @@ public class TeamData {
     public int getBorderRadius() { return borderRadius; }
     public List<UUID> getMembers() { return members; }
 
-    // Setters (added for default config)
+    // Setters
     public void setId(String id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setPrefix(String prefix) { this.prefix = prefix; }

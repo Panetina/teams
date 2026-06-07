@@ -18,7 +18,12 @@ public class TeamRemoveCommand {
                         .executes(ctx -> {
                             ServerPlayerEntity player = EntityArgumentType.getPlayer(ctx, "player");
                             TeamManager.removePlayer(player);
-                            ctx.getSource().sendFeedback(() -> Text.literal("Removed " + player.getDisplayName().getString() + " from their team"), true);
+
+                            String playerName = player.getDisplayName() != null
+                                    ? player.getDisplayName().getString()
+                                    : player.getName().getString();
+
+                            ctx.getSource().sendFeedback(() -> Text.literal("Removed " + playerName + " from their team"), true);
                             return 1;
                         })
                 )

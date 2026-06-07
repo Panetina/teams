@@ -32,7 +32,12 @@ public class TeamAddCommand {
                                         return 0;
                                     }
                                     TeamManager.addPlayer(player, teamId);
-                                    ctx.getSource().sendFeedback(() -> Text.literal("Added " + player.getDisplayName().getString() + " to team " + teamId), true);
+
+                                    String playerName = player.getDisplayName() != null
+                                            ? player.getDisplayName().getString()
+                                            : player.getName().getString();
+
+                                    ctx.getSource().sendFeedback(() -> Text.literal("Added " + playerName + " to team " + teamId), true);
                                     return 1;
                                 })
                         )
