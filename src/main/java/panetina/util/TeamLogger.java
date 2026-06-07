@@ -9,12 +9,4 @@ public class TeamLogger {
     public static void logTeamChat(String prefix, String nickname, String message) {
         LOGGER.info("[TEAM CHAT][{}][{}]: {}", prefix, nickname, message);
     }
-
-    public static void logAdmin(String msg) {
-        LOGGER.info("[TEAM ADMIN] {}", msg);
-    }
-
-    public static void logGeneral(String msg) {
-        LOGGER.info("[TEAM] {}", msg);
-    }
 }

@@ -1,12 +1,10 @@
 package panetina.team;
 
-import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +17,6 @@ import panetina.mixin.EntityAccessor;
 import panetina.util.TeamColorUtil;
 import panetina.util.TeamLogger;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,14 +34,14 @@ public class TeamManager {
             player.teleport(player.getServerWorld(), spawn.x, spawn.y, spawn.z, player.getYaw(), player.getPitch());
             player.sendMessage(Text.literal("You joined ").append(Text.literal(team.getName()).formatted(Formatting.GREEN)), false);
 
-            // Set custom name with hex color support
             String displayName = player.getDisplayName() != null ? player.getDisplayName().getString() : player.getName().getString();
             Text colouredName = Text.literal(displayName)
                     .styled(style -> style.withColor(TeamColorUtil.parseColor(team.getColor())));
-            player.setCustomName(colouredName);
-            player.setCustomNameVisible(true);
 
-            forceCustomNameSync(player);
+            // Direct data tracker update – automatically syncs to all clients
+            TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
+            player.getDataTracker().set(key, Optional.of(colouredName));
+            player.setCustomNameVisible(true);
         }
         TeamBorderManager.syncBorderToPlayer(player);
         refreshTabList(player);
@@ -61,10 +58,10 @@ public class TeamManager {
         TeamStorage storage = TeamStorage.getInstance();
         storage.removePlayerFromTeam(uuid);
         player.sendMessage(Text.literal("You have been removed from your team.").formatted(Formatting.RED), false);
-        player.setCustomName(null);
-        player.setCustomNameVisible(false);
 
-        forceCustomNameSync(player);
+        TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
+        player.getDataTracker().set(key, Optional.empty());
+        player.setCustomNameVisible(false);
 
         TeamBorderManager.syncBorderToPlayer(player);
         refreshTabList(player);
@@ -154,28 +151,7 @@ public class TeamManager {
         storage.saveToFile();
     }
 
-    private static void forceCustomNameSync(ServerPlayerEntity player) {
-        if (player == null || player.getServer() == null) return;
-
-        MinecraftServer server = player.getServer();
-        if (server.getPlayerManager() == null) return;
-
-        TrackedData<Optional<Text>> key = EntityAccessor.getCustomNameTrackedData();
-        Optional<Text> value = player.getDataTracker().get(key);
-        DataTracker.SerializedEntry<Optional<Text>> entry = DataTracker.SerializedEntry.of(key, value);
-
-        EntityTrackerUpdateS2CPacket packet = new EntityTrackerUpdateS2CPacket(
-                player.getId(), List.of(entry)
-        );
-
-        for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
-            if (other != null && other.networkHandler != null) {
-                other.networkHandler.sendPacket(packet);
-            }
-        }
-    }
-
-    private static void refreshTabList(ServerPlayerEntity changedPlayer) {
+    public static void refreshTabList(ServerPlayerEntity changedPlayer) {
         if (changedPlayer == null || changedPlayer.getServer() == null) return;
 
         MinecraftServer server = changedPlayer.getServer();

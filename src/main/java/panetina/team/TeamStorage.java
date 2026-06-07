@@ -6,9 +6,9 @@ import java.util.*;
 
 public class TeamStorage {
     private static TeamStorage instance;
-    private Map<String, TeamData> teams = new LinkedHashMap<>();
-    private Map<UUID, String> playerTeamMap = new HashMap<>();
-    private List<TeamMember> memberData = new ArrayList<>();
+    private final Map<String, TeamData> teams = new LinkedHashMap<>();
+    private final Map<UUID, String> playerTeamMap = new HashMap<>();
+    private final List<TeamMember> memberData = new ArrayList<>();
 
     public static TeamStorage getInstance() {
         if (instance == null) instance = new TeamStorage();

@@ -30,9 +30,7 @@ public class Teams implements ModInitializer, ClientModInitializer {
 	public void onInitialize() {
 		PayloadTypeRegistry.playS2C().register(TeamDataPayload.ID, TeamDataPayload.CODEC);
 
-		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			ServerStartedListener.onServerStarted(server);
-		});
+		ServerLifecycleEvents.SERVER_STARTED.register(ServerStartedListener::onServerStarted);
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			TeamAddCommand.register(dispatcher);
@@ -53,11 +51,11 @@ public class Teams implements ModInitializer, ClientModInitializer {
 	}
 
 	@Override
+	@SuppressWarnings("resource")
 	public void onInitializeClient() {
-		ClientPlayNetworking.registerGlobalReceiver(TeamDataPayload.ID, (payload, context) -> {
-			context.client().execute(() ->
-					ClientTeamData.update(payload.teamAssignments(), payload.teamNames(), payload.teamColors()));
-		});
+		ClientPlayNetworking.registerGlobalReceiver(TeamDataPayload.ID, (payload, context) ->
+				context.client().execute(() -> ClientTeamData.update(payload.teamAssignments(), payload.teamNames(), payload.teamColors()))
+		);
 	}
 
 	public static void sendTeamDataToPlayer(ServerPlayerEntity player) {
